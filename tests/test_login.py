@@ -22,5 +22,5 @@ def test_invalid_password(browser):
 def test_logout(browser):
     login_page = LoginPage(browser)
     login_page.logout("student", "Password123")
-    assert "Test login" in browser.page_source
+    assert "Test login" in browser.page_source 
 
