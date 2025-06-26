@@ -9,7 +9,7 @@ def test_valid_login(browser):
     login_page.login("student", "Password123")
     assert "Logged In Successfully" in browser.page_source
 
-def test_invalid_password(browser):
+def test_invalid_username(browser):
     login_page = LoginPage(browser)
     login_page.login("wronguser", "Password123")
     assert login_page.get_error_message() == "Your username is invalid!"

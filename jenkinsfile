@@ -2,19 +2,26 @@ pipeline {
     agent any
 
     stages {
-        stage('Install Dependencies') {
+        stage('Setup') {
             steps {
-                sh 'pip install -r requirements.txt'
+                // Install dependencies
+                bat 'pip install -r requirements.txt'
             }
         }
+
         stage('Run Tests') {
             steps {
-                sh 'pytest --html=report.html'
+                bat 'pytest --html=report.html'
             }
         }
+
         stage('Publish Report') {
-            steps {
-                publishHTML([reportDir: '.', reportFiles: 'report.html', reportName: 'Test Report'])
+            steps { 
+                publishHTML([ 
+                    reportDir: '.', 
+                    reportFiles: 'report.html', 
+                    reportName: 'Test Report'
+                ])
             }
         }
     }
