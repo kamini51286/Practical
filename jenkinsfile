@@ -2,26 +2,131 @@ pipeline {
     agent any
 
     stages {
+        stage('Install Python') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        // Linux installation
+                        sh '''
+                            echo Installing Python...
+                            if ! command -v python3 &> /dev/null; then
+                                apt-get update
+                                apt-get install -y python3 python3-pip
+                            fi
+                        '''
+                    } else {
+                        // Windows installation
+                        powershell '''
+                            Write-Host "Installing Python..."
+                            # Check if Python is installed
+                            if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
+                                # Download and install Python using Chocolatey if available
+                                if (Get-Command choco -ErrorAction SilentlyContinue) {
+                                    choco install python -y
+                                } else {
+                                    Write-Host "Please install Python manually or using Chocolatey package manager"
+                                    # Alternative: Download Python installer and install silently
+                                    # Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.9.7/python-3.9.7-amd64.exe" -OutFile "python-installer.exe"
+                                    # Start-Process -FilePath "python-installer.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1" -Wait
+                                }
+                            }
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Install Chrome') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        // Linux Chrome installation
+                        sh '''
+                            echo Installing Chrome...
+                            apt-get update
+                            apt-get install -y wget gnupg
+                            wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+                            echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
+                            apt-get update
+                            apt-get install -y google-chrome-stable
+                            # Install additional dependencies that Chrome might need
+                            apt-get install -y xvfb libxi6 libgconf-2-4 fonts-liberation
+                        '''
+                    } else {
+                        // Windows Chrome installation
+                        powershell '''
+                            Write-Host "Installing Chrome..."
+                            # Check if Chrome is installed
+                            if (-not (Test-Path "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe")) {
+                                # Install Chrome using Chocolatey if available
+                                if (Get-Command choco -ErrorAction SilentlyContinue) {
+                                    choco install googlechrome -y
+                                } else {
+                                    # Alternative: Download Chrome installer and install silently
+                                    $Installer = "$env:TEMP\\chrome_installer.exe"
+                                    Invoke-WebRequest -Uri "https://dl.google.com/chrome/install/latest/chrome_installer.exe" -OutFile $Installer
+                                    Start-Process -FilePath $Installer -Args "/silent /install" -Wait
+                                    Remove-Item -Path $Installer
+                                }
+                            }
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Setup') {
             steps {
-                // Install dependencies
-                bat 'pip install -r requirements.txt'
+                script {
+                    if (isUnix()) {
+                        // Linux setup
+                        sh '''
+                            python3 -m pip install --upgrade pip
+                            pip3 install -r requirements.txt
+                        '''
+                    } else {
+                        // Windows setup
+                        powershell '''
+                            python -m pip install --upgrade pip
+                            pip install -r requirements.txt
+                        '''
+                    }
+                }
             }
         }
 
         stage('Run Tests') {
             steps {
-                bat 'pytest --html=report.html'
+                script {
+                    if (isUnix()) {
+                        // Linux test execution
+                        sh '''
+                            # Set up virtual display for Chrome
+                            export DISPLAY=:99
+                            Xvfb :99 -screen 0 1280x1024x24 &
+                            # Run tests with Chrome in headless mode
+                            python3 -m pytest --html=report.html
+                        '''
+                    } else {
+                        // Windows test execution
+                        powershell '''
+                            # Run tests with Chrome in headless mode
+                            python -m pytest --html=report.html
+                        '''
+                    }
+                }
             }
         }
 
         stage('Publish Report') {
             steps { 
-                publishHTML([ 
-                    reportDir: '.', 
-                    reportFiles: 'report.html', 
-                    reportName: 'Test Report'
-                ])
+                publishHTML(target: [allowMissing: true,
+                     alwaysLinkToLastBuild: false,
+                     keepAll: true,
+                     reportDir: '.',
+                     reportFiles: 'report.html',
+                     reportName: 'MyReports',
+                     reportTitles: 'TheReport'])
             }
         }
     }
