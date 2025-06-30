@@ -6,6 +6,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 import os
 from datetime import datetime
+import shutil
+
 
 @pytest.fixture
 def browser():
