@@ -4,6 +4,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
+import os
+from datetime import datetime
 
 @pytest.fixture
 def browser():
@@ -14,3 +16,13 @@ def browser():
     driver.get("https://practicetestautomation.com/practice-test-login/")  # Change URL as needed
     yield driver
     driver.quit()
+
+def pytest_configure(config):
+    reports_dir = os.path.join(os.getcwd(), "reports")
+    os.makedirs(reports_dir, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    report_path = os.path.join(reports_dir, f"report_{timestamp}.html")
+
+    config.option.htmlpath = report_path  # dynamically set the report path
+    config.option.self_contained_html = True  # standalone HTML

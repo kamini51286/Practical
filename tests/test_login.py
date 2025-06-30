@@ -1,12 +1,15 @@
 from pages.login_page import LoginPage
+from utils.screenshot_util import take_screenshot
 
 def test_title(browser):
-    # driver.get("https://www.google.com")
     assert "Test Login | Practice Test Automation" in browser.title
 
-def test_valid_login(browser):
+def test_valid_login(browser,request):
+    test_name = request.node.name
     login_page = LoginPage(browser)
     login_page.login("student", "Password123")
+    take_screenshot(browser, test_name)
+
     assert "Logged In Successfully" in browser.page_source
 
 def test_invalid_username(browser):
