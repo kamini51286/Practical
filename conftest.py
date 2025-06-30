@@ -9,14 +9,19 @@ from datetime import datetime
 
 @pytest.fixture
 def browser():
-    options = Options()
-    options.add_argument("--headless")
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=options)
-    driver.maximize_window()
-    driver.get("https://practicetestautomation.com/practice-test-login/")  # Change URL as needed
-    yield driver
-    driver.quit()
-
+    try:
+        options = Options()
+        options.add_argument("--headless")
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=options)
+        driver.maximize_window()
+        driver.get("https://practicetestautomation.com/practice-test-login/")  # Change URL as needed
+        yield driver
+        driver.quit()
+    except Exception as e:
+        raise e.msg
+    
 def pytest_configure(config):
     reports_dir = os.path.join(os.getcwd(), "reports")
     os.makedirs(reports_dir, exist_ok=True)
