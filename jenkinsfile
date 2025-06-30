@@ -105,13 +105,13 @@ pipeline {
                             export DISPLAY=:99
                             Xvfb :99 -screen 0 1280x1024x24 &
                             # Run tests with Chrome in headless mode
-                            python3 -m pytest --html=report.html
+                            python3 -m pytest
                         '''
                     } else {
                         // Windows test execution
                         powershell '''
                             # Run tests with Chrome in headless mode
-                            python -m pytest --html=report.html
+                            python -m pytest
                         '''
                     }
                 }
