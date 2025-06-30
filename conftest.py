@@ -31,3 +31,12 @@ def pytest_configure(config):
 
     config.option.htmlpath = report_path  # dynamically set the report path
     config.option.self_contained_html = True  # standalone HTML
+
+    # Step 4: Save for later use
+    config._html_report_path = report_path
+    config._latest_report_path = os.path.join(reports_dir, "latest.html")
+
+def pytest_unconfigure(config):
+    # Step 5: After test run, copy to 'latest.html'
+    if hasattr(config, "_html_report_path"):
+        shutil.copyfile(config._html_report_path, config._latest_report_path)
