@@ -1,4 +1,6 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from pages.base_page import BasePage
 
 class LoginPage(BasePage):
@@ -14,7 +16,14 @@ class LoginPage(BasePage):
         self.click(self.SUBMIT)
 
     def get_error_message(self):
-        return self.get_text(self.ERROR)
+        try:
+            wait = WebDriverWait(self.driver, 10)
+            error_element = wait.until(EC.visibility_of_element_located(self.ERROR))
+            return error_element.text
+        except Exception as e:
+            print(f"❌ Failed to get error message: {e}")
+            return ""
+        # return self.get_text(self.ERROR)
     
     def logout(self, username, password):
         self.type(self.USERNAME, username)
