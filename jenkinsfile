@@ -11,16 +11,14 @@ pipeline {
         stage('Install dependencies') {
             steps {
                 echo 'Installing dependencies...'
-                bat '%PY_PATH% --version'
-                bat '%PY_PATH% -m pip install --upgrade pip'
-                bat '%PY_PATH% -m pip install -r requirements.txt'
+                bat '%PY_PATH% pip install -r requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
                 echo 'Running tests with pytest...'
-                bat '%PY_PATH% -m pytest tests/'
+                bat '%PY_PATH% pytest --html=report.html'
             }
         }
     }
@@ -28,6 +26,14 @@ pipeline {
     post {
         always {
             echo 'Pipeline completed.'
+            publishHTML (target: [
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: '.',
+                reportFiles: 'report.html',
+                reportName: 'Pytest Report'
+            ])
         }
         success {
             echo 'All tests passed ✅'
