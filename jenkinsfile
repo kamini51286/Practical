@@ -1,133 +1,39 @@
 pipeline {
-    agent any
+    agent any  // Runs on any available Jenkins agent
+
+    environment {
+        // Optional: Specify Python version if you're using pyenv/virtualenvs
+        PY_PATH = 'C:\\Users\\Kamini\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
+    }
 
     stages {
-        stage('Install Python') {
+        
+        stage('Install dependencies') {
             steps {
-                script {
-                    if (isUnix()) {
-                        // Linux installation
-                        sh '''
-                            echo Installing Python...
-                            if ! command -v python3 &> /dev/null; then
-                                apt-get update
-                                apt-get install -y python3 python3-pip
-                            fi
-                        '''
-                    } else {
-                        // Windows installation
-                        powershell '''
-                            Write-Host "Installing Python..."
-                            # Check if Python is installed
-                            if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
-                                # Download and install Python using Chocolatey if available
-                                if (Get-Command choco -ErrorAction SilentlyContinue) {
-                                    choco install python -y
-                                } else {
-                                    Write-Host "Please install Python manually or using Chocolatey package manager"
-                                    # Alternative: Download Python installer and install silently
-                                    # Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.9.7/python-3.9.7-amd64.exe" -OutFile "python-installer.exe"
-                                    # Start-Process -FilePath "python-installer.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1" -Wait
-                                }
-                            }
-                        '''
-                    }
-                }
-            }
-        }
-
-        stage('Install Chrome') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        // Linux Chrome installation
-                        sh '''
-                            echo Installing Chrome...
-                            apt-get update
-                            apt-get install -y wget gnupg
-                            wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-                            echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
-                            apt-get update
-                            apt-get install -y google-chrome-stable
-                            # Install additional dependencies that Chrome might need
-                            apt-get install -y xvfb libxi6 libgconf-2-4 fonts-liberation
-                        '''
-                    } else {
-                        // Windows Chrome installation
-                        powershell '''
-                            Write-Host "Installing Chrome..."
-                            # Check if Chrome is installed
-                            if (-not (Test-Path "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe")) {
-                                # Install Chrome using Chocolatey if available
-                                if (Get-Command choco -ErrorAction SilentlyContinue) {
-                                    choco install googlechrome -y
-                                } else {
-                                    # Alternative: Download Chrome installer and install silently
-                                    $Installer = "$env:TEMP\\chrome_installer.exe"
-                                    Invoke-WebRequest -Uri "https://dl.google.com/chrome/install/latest/chrome_installer.exe" -OutFile $Installer
-                                    Start-Process -FilePath $Installer -Args "/silent /install" -Wait
-                                    Remove-Item -Path $Installer
-                                }
-                            }
-                        '''
-                    }
-                }
-            }
-        }
-
-        stage('Setup') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        // Linux setup
-                        sh '''
-                            python3 -m pip install --upgrade pip
-                            pip3 install -r requirements.txt
-                        '''
-                    } else {
-                        // Windows setup
-                        powershell '''
-                            python -m pip install --upgrade pip
-                            pip install -r requirements.txt
-                        '''
-                    }
-                }
+                echo 'Installing dependencies...'
+                bat '%PY_PATH% --version'
+                bat '%PY_PATH% -m pip install --upgrade pip'
+                bat '%PY_PATH% -m pip install -r requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                script {
-                    if (isUnix()) {
-                        // Linux test execution
-                        sh '''
-                            # Set up virtual display for Chrome
-                            export DISPLAY=:99
-                            Xvfb :99 -screen 0 1280x1024x24 &
-                            # Run tests with Chrome in headless mode
-                            python3 -m pytest
-                        '''
-                    } else {
-                        // Windows test execution
-                        powershell '''
-                            # Run tests with Chrome in headless mode
-                            python -m pytest
-                        '''
-                    }
-                }
-            }
-        }
-
-        stage('Publish Report') {
-            steps { 
-                publishHTML(target: [allowMissing: true,
-                     alwaysLinkToLastBuild: false,
-                     keepAll: true,
-                     reportDir: '.',
-                     reportFiles: 'latest.html',
-                     reportName: 'MyReports',
-                     reportTitles: 'TheReport'])
+                echo 'Running tests with pytest...'
+                bat '%PY_PATH% -m pytest tests/'
             }
         }
     }
-}
+
+    post {
+        always {
+            echo 'Pipeline completed.'
+        }
+        success {
+            echo 'All tests passed ✅'
+        }
+        failure {
+            echo 'Some tests failed ❌'
+        }
+    }
+    }

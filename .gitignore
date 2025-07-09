@@ -1,4 +1,69 @@
-.venv
-.idea
-reports/
-screenshots/
+# Byte-compiled / optimized / DLL files
+*__pycache__/*
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Pytest
+.pytest_cache/
+.cache/
+*.log
+
+# Coverage reports
+.coverage
+coverage.xml
+htmlcov/
+*.cover
+
+# Test report files
+*.xml
+*.html
+*.tmp
+
+# Virtual environments
+env/
+venv/
+ENV/
+.env/
+.venv/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# MacOS and Linux/Unix
+.DS_Store
+*.swp
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+
+#project files
+/reports/*
+/screenshots/*
