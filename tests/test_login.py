@@ -2,6 +2,7 @@ from pages.login_page import LoginPage
 from utils.screenshot_util import take_screenshot
 
 def test_title(browser):
+    print("Page title is:", browser.title)
     assert "Test Login | Practice Test Automation" in browser.title
 
 # def test_valid_login(browser,request):
