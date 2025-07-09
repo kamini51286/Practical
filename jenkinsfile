@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Optional: Specify Python version if you're using pyenv/virtualenvs
-        PY_PATH = 'C:\\Users\\Kamini\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
+        PY_PATH = 'C:\Users\HP\AppData\Local\Programs\Python\Python311\python.exe'
     }
 
     stages {
