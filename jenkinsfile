@@ -18,7 +18,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo 'Running tests with pytest...'
-                bat '%PY_PATH% pytest --html=report.html'
+                bat '%PY_PATH% -m pytest --html=report.html'
             }
         }
     }
